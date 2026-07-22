@@ -3,4 +3,12 @@ name = "rias"
 version = "0.1.0"
 edition = "2024"
 
+[profile.dev]
+panic = "abort"
+
+[[bin]]
+name = "rias"
+test = false
+bench = false
+
 [dependencies]
