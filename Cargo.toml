@@ -14,7 +14,7 @@ bench = false
 bootloader = "0.9"
 volatile = "0.2.6"
 spin = "0.5.2"
-x86_64 = { version = "0.15.5", default-features = false , features = ["instructions"] }
+x86_64 = { version = "0.15.5", default-features = false , features = ["instructions", "abi_x86_interrupt"] }
 uart_16550 = "0.6.0"
 
 [dependencies.lazy_static]
