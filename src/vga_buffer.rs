@@ -125,7 +125,7 @@ use spin::Mutex;
 lazy_static! {
     pub static ref WRITER: Mutex<Writer> = Mutex::new(Writer {
         column_position: 0,
-        color_code: ColorCode::new(Color::Red, Color::LightRed),
+        color_code: ColorCode::new(Color::White, Color::LightRed),
         buffer: unsafe { &mut *(0xb8000 as *mut Buffer) },
     });
 }
@@ -135,7 +135,7 @@ pub fn print_smth() {
 
     let mut writer = Writer {
         column_position: 0,
-        color_code: ColorCode::new(Color::Red, Color::Black),
+        color_code: ColorCode::new(Color::Red, Color::White),
         buffer: unsafe { &mut *(0xb8000 as *mut Buffer) },
     };
 
@@ -159,4 +159,16 @@ macro_rules! println {
 pub fn _print(args: fmt::Arguments) {
     use core::fmt::Write;
     WRITER.lock().write_fmt(args).unwrap();
+}
+
+#[test_case]
+fn test_println_simple() {
+    println!("test simple print");
+}
+
+#[test_case]
+fn test_println_many() {
+    for _ in 0..10 {
+        println!("test multi print");
+    }
 }
