@@ -9,11 +9,20 @@ use rias::println;
 
 #[unsafe(no_mangle)] // do not mangle the name of this fn
 pub extern "C" fn _start() -> ! {
-    println!("hello world");
+    println!(
+        r#"
+       _            ___  ____
+  _ __(_) __ _ ___ / _ \/ ___|
+ | '__| |/ _` / __| | | \___ \
+ | |  | | (_| \__ \ |_| |___) |
+ |_|  |_|\__,_|___/\___/|____/
+
+"#
+    );
 
     rias::init();
 
-    x86_64::instructions::interrupts::int3();
+    // x86_64::instructions::interrupts::int3();
 
     #[cfg(test)]
     test_main();
