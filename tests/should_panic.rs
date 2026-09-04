@@ -5,7 +5,7 @@
 #![reexport_test_harness_main = "test_main"]
 
 use core::panic::PanicInfo;
-use rias::{QemuExitCode, exit_qemu, serial_println};
+use rias::{QemuExitCode, exit_qemu, serial_println, test_runner};
 
 #[panic_handler]
 fn panic(_info: &PanicInfo) -> ! {
