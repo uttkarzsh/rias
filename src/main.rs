@@ -22,16 +22,13 @@ pub extern "C" fn _start() -> ! {
 
     rias::init();
 
-<<<<<<< HEAD
-    // x86_64::instructions::interrupts::int3();
-=======
     // x86_64::instructions::interrupts::int3();    // invoke a breakpoint interruption
 
     // trigger a page fault
-    unsafe {
+    /* unsafe {
         *(0xdeadbeef as *mut u8) = 42;
     };
->>>>>>> b8b8078 (add double fault handler)
+    */
 
     #[cfg(test)]
     test_main();

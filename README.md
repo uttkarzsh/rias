@@ -5,7 +5,7 @@ Rias is my journey into operating systems, computer architecture, and low-level 
 ## Roadmap
 - [x] Bootloader & kernel entry
 - [x] VGA text output & serial logging
-- [ ] Interrupts & exception handling
+- [x] Interrupts & exception handling
 - [ ] Physical & virtual memory management
 - [ ] Heap allocator
 - [ ] Keyboard input
