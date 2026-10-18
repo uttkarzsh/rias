@@ -5,7 +5,7 @@
 #![test_runner(rias::test_runner)]
 
 use core::panic::PanicInfo;
-use rias::println;
+use rias::{print, println};
 
 #[unsafe(no_mangle)] // do not mangle the name of this fn
 pub extern "C" fn _start() -> ! {
@@ -34,15 +34,14 @@ pub extern "C" fn _start() -> ! {
     test_main();
 
     println!("it did not crash yay");
-
-    loop {}
+    rias::hlt_loop();
 }
 
 #[cfg(not(test))]
 #[panic_handler]
 fn panic(info: &PanicInfo) -> ! {
     println!("{}", info);
-    loop {}
+    rias::hlt_loop();
 }
 
 #[cfg(test)]
