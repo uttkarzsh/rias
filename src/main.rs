@@ -23,12 +23,27 @@ pub extern "C" fn _start() -> ! {
     rias::init();
 
     // x86_64::instructions::interrupts::int3();    // invoke a breakpoint interruption
-
     // trigger a page fault
-    /* unsafe {
-        *(0xdeadbeef as *mut u8) = 42;
-    };
+    /*
+        let ptr = 0x206386 as *mut u8;
+        unsafe {
+            let x = *ptr;
+        }
+        println!("read worked");
+
+        unsafe {
+            *ptr = 42;
+        }
+        println!("write worked");
     */
+
+    use x86_64::registers::control::Cr3;
+
+    let (level_4_page_table, _) = Cr3::read();
+    println!(
+        "Level 4 page table at: {:?}",
+        level_4_page_table.start_address()
+    );
 
     #[cfg(test)]
     test_main();
