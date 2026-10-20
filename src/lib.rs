@@ -5,6 +5,9 @@
 #![reexport_test_harness_main = "test_main"]
 #![feature(abi_x86_interrupt)]
 
+extern crate alloc;
+
+pub mod allocator;
 pub mod gdt;
 pub mod interrupts;
 pub mod memory;

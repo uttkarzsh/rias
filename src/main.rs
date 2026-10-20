@@ -4,6 +4,9 @@
 #![feature(custom_test_frameworks)]
 #![test_runner(rias::test_runner)]
 
+extern crate alloc;
+
+use alloc::{boxed::Box, rc::Rc, vec, vec::Vec};
 use bootloader::{BootInfo, entry_point};
 use core::panic::PanicInfo;
 use rias::{memory, print, println};
@@ -11,8 +14,9 @@ use rias::{memory, print, println};
 entry_point!(kernel_main);
 
 fn kernel_main(boot_info: &'static BootInfo) -> ! {
+    use rias::allocator;
     use rias::memory::BootInfoFrameAllocator;
-    use x86_64::{VirtAddr, structures::paging::Page};
+    use x86_64::VirtAddr;
 
     println!(
         r#"
@@ -27,47 +31,35 @@ fn kernel_main(boot_info: &'static BootInfo) -> ! {
 
     rias::init();
 
-    // x86_64::instructions::interrupts::int3();    // invoke a breakpoint interruption
-    // trigger a page fault
-    /*
-        let ptr = 0x206386 as *mut u8;
-        unsafe {
-            let x = *ptr;
-        }
-        println!("read worked");
-
-        unsafe {
-            *ptr = 42;
-        }
-        println!("write worked");
-    */
-
     let phys_mem_offset = VirtAddr::new(boot_info.physical_memory_offset);
-
     let mut mapper = unsafe { memory::init(phys_mem_offset) };
     let mut frame_allocator = unsafe { BootInfoFrameAllocator::init(&boot_info.memory_map) };
 
-    /*
-    let addresses = [
-        // identity mapped vga buffer page
-        0xb8000,
-        0x201008,                         // some code page
-        0x0100_0020_1a10,                 // some stack page
-        boot_info.physical_memory_offset, //virt address mapped to phys address 0
-    ];
+    allocator::init_heap(&mut mapper, &mut frame_allocator).expect("heap initialization failed");
 
-    for &address in &addresses {
-        let virt = VirtAddr::new(address);
-        let phys = mapper.translate_addr(virt);
-        println!("{:?} -> {:?}", virt, phys);
+    // allocate a new value on the heap
+    let heap_value = Box::new(41);
+    println!("heap_value at {:p}", heap_value);
+
+    // create a dynamically sized vector
+    let mut vec = Vec::new();
+    for i in 0..500 {
+        vec.push(i);
     }
-    */
+    println!("vec at {:p}", vec.as_slice());
 
-    let page = Page::containing_address(VirtAddr::new(0));
-    memory::create_example_mapping(page, &mut mapper, &mut frame_allocator);
-
-    let page_ptr: *mut u64 = page.start_address().as_mut_ptr();
-    unsafe { page_ptr.offset(400).write_volatile(0x_f021_f077_f065_f04e) };
+    // create a reference counted vector -> will be freed when count reaches 0
+    let reference_counted = Rc::new(vec![1, 2, 3]);
+    let cloned_reference = reference_counted.clone();
+    println!(
+        "current ref count is {}",
+        Rc::strong_count(&cloned_reference)
+    );
+    core::mem::drop(reference_counted);
+    println!(
+        "reference count is {} now",
+        Rc::strong_count(&cloned_reference)
+    );
 
     #[cfg(test)]
     test_main();
