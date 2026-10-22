@@ -1,5 +1,10 @@
+pub mod bump;
+pub mod linked_list;
+
 use alloc::alloc::{GlobalAlloc, Layout};
+use bump::{BumpAllocator, Locked};
 use core::ptr::null_mut;
+use linked_list::LinkedListAllocator;
 use linked_list_allocator::LockedHeap;
 use x86_64::{
     VirtAddr,
@@ -9,7 +14,7 @@ use x86_64::{
 };
 
 #[global_allocator]
-static ALLOCATOR: LockedHeap = LockedHeap::empty();
+static ALLOCATOR: Locked<LinkedListAllocator> = Locked::new(LinkedListAllocator::new());
 
 pub const HEAP_START: usize = 0x_4444_4444_0000;
 pub const HEAP_SIZE: usize = 100 * 1024;
@@ -51,4 +56,20 @@ unsafe impl GlobalAlloc for Dummy {
     unsafe fn dealloc(&self, _ptr: *mut u8, _layout: Layout) {
         panic!("dealloc should never be called")
     }
+}
+
+fn align_up(addr: usize, align: usize) -> usize {
+    /* simple version
+
+    let remainder = addr % align;
+    if remainder == 0 {
+        addr
+    } else {
+        addr - remainder + align
+    }
+
+    */
+
+    // optimized version
+    (addr + align - 1) & !(align - 1)
 }
