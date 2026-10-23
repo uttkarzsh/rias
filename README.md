@@ -6,9 +6,9 @@ Rias is my journey into operating systems, computer architecture, and low-level 
 - [x] Bootloader & kernel entry
 - [x] VGA text output & serial logging
 - [x] Interrupts & exception handling
-- [ ] Physical & virtual memory management
-- [ ] Heap allocator
-- [ ] Keyboard input
+- [x] Physical & virtual memory management
+- [x] Heap allocator
+- [x] Keyboard input
 - [ ] Cooperative multitasking
 - [ ] Basic shell
 - [ ] Filesystem support
