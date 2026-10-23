@@ -1,6 +1,6 @@
 use super::{Locked, align_up};
 use alloc::alloc::{GlobalAlloc, Layout};
-use core::{alloc::Layout, mem, ptr};
+use core::{mem, ptr};
 
 struct ListNode {
     size: usize,
