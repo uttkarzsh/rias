@@ -2,6 +2,8 @@
 json-target-spec = true
 build-std = ["core", "compiler_builtins", "alloc"]
 build-std-features = ["compiler-builtins-mem"]
+# bootimage detects test binaries by their `deps/` parent dir; the new layout breaks that
+build-dir-new-layout = false
 
 [build]
 target = "x86_64-rias.json"
