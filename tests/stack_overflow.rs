@@ -9,7 +9,7 @@ use rias::serial_print;
 pub extern "C" fn _start() -> ! {
     serial_print!("stack_overflow::stack_overflow...\t");
 
-    rias::gdt::init();
+    rias::interrupts::gdt::init();
     init_test_idt();
 
     stack_overflow();
@@ -37,7 +37,7 @@ lazy_static! {
         unsafe {
             idt.double_fault
                 .set_handler_fn(test_double_fault_handler)
-                .set_stack_index(rias::gdt::DOUBLE_FAULT_IST_INDEX);
+                .set_stack_index(rias::interrupts::gdt::DOUBLE_FAULT_IST_INDEX);
         }
 
         idt
