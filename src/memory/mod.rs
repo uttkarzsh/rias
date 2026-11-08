@@ -22,7 +22,10 @@ unsafe fn active_level_4_table(physical_memory_offset: VirtAddr) -> &'static mut
     unsafe { &mut *page_table_ptr }
 }
 
-//translate the given virtual address to the mapped physical address or 'None' if not mapped
+/// translate the given virtual address to the mapped physical address or 'None' if not mapped
+///
+/// # Safety
+/// the complete physical memory must be mapped to virtual memory at `physical_memory_offset`
 pub unsafe fn translate_addr(addr: VirtAddr, physical_memory_offset: VirtAddr) -> Option<PhysAddr> {
     translate_addr_inner(addr, physical_memory_offset)
 }
@@ -60,7 +63,11 @@ fn translate_addr_inner(addr: VirtAddr, physical_memory_offset: VirtAddr) -> Opt
     Some(frame.start_address() + u64::from(addr.page_offset()))
 }
 
-// initialise a new OffsetPageTable. must be only called once to aboid aliasing &mut
+/// initialise a new OffsetPageTable.
+///
+/// # Safety
+/// the complete physical memory must be mapped to virtual memory at `physical_memory_offset`.
+/// must be only called once to avoid aliasing &mut
 pub unsafe fn init(physical_memory_offset: VirtAddr) -> OffsetPageTable<'static> {
     unsafe {
         let level_4_table = active_level_4_table(physical_memory_offset);
@@ -99,7 +106,10 @@ pub struct BootInfoFrameAllocator {
 }
 
 impl BootInfoFrameAllocator {
-    //unsafe bcuz passed memory map being valid must be guaranteed by the caller
+    /// creates a frame allocator from the passed memory map.
+    ///
+    /// # Safety
+    /// the passed memory map must be valid: frames marked usable must really be unused
     pub unsafe fn init(memory_map: &'static MemoryMap) -> Self {
         BootInfoFrameAllocator {
             memory_map,

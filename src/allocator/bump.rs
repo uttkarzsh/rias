@@ -13,7 +13,7 @@ impl<A> Locked<A> {
         }
     }
 
-    pub fn lock(&self) -> spin::MutexGuard<A> {
+    pub fn lock(&self) -> spin::MutexGuard<'_, A> {
         self.inner.lock()
     }
 }
@@ -23,6 +23,12 @@ pub struct BumpAllocator {
     heap_end: usize,
     next: usize,
     allocations: usize,
+}
+
+impl Default for BumpAllocator {
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 impl BumpAllocator {
@@ -35,8 +41,10 @@ impl BumpAllocator {
         }
     }
 
-    //inits the bump allocator with the given heap bounds. must be called only once.
-    //unsafe cuz caller must ensure that the given memory range is unused
+    /// inits the bump allocator with the given heap bounds.
+    ///
+    /// # Safety
+    /// must be called only once. caller must ensure that the given memory range is unused
     pub unsafe fn init(&mut self, heap_start: usize, heap_size: usize) {
         self.heap_start = heap_start;
         self.heap_end = heap_start + heap_size;

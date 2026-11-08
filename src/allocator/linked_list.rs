@@ -25,6 +25,12 @@ pub struct LinkedListAllocator {
     head: ListNode,
 }
 
+impl Default for LinkedListAllocator {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl LinkedListAllocator {
     pub const fn new() -> Self {
         Self {
@@ -32,6 +38,10 @@ impl LinkedListAllocator {
         }
     }
 
+    /// adds the whole heap as one free region.
+    ///
+    /// # Safety
+    /// must be called only once. caller must ensure that the given memory range is unused
     pub unsafe fn init(&mut self, heap_start: usize, heap_size: usize) {
         unsafe {
             self.add_free_region(heap_start, heap_size);
@@ -60,7 +70,7 @@ impl LinkedListAllocator {
         let mut current = &mut self.head;
         // look for a large enough memory region in linked list
         while let Some(ref mut region) = current.next {
-            if let Ok(alloc_start) = Self::alloc_from_region(&region, size, align) {
+            if let Ok(alloc_start) = Self::alloc_from_region(region, size, align) {
                 // region suitable for allocation -> remove node from list
                 let next = region.next.take();
                 let ret = Some((current.next.take().unwrap(), alloc_start));

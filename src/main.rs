@@ -6,13 +6,11 @@
 
 extern crate alloc;
 
-use alloc::{boxed::Box, rc::Rc, vec, vec::Vec};
 use bootloader::{BootInfo, entry_point};
 use core::panic::PanicInfo;
-use rias::{
-    memory, print, println,
-    task::{Task, executor::Executor, keyboard, simple_executor::SimpleExecutor},
-};
+#[cfg(not(test))]
+use rias::task::{Task, executor::Executor, keyboard};
+use rias::{memory, println};
 
 entry_point!(kernel_main);
 

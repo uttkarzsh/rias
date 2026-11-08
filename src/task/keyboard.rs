@@ -1,7 +1,6 @@
-use crate::{print, println, task::keyboard};
+use crate::{print, println};
 use conquer_once::spin::OnceCell;
 use core::{
-    iter::Scan,
     pin::Pin,
     task::{Context, Poll},
 };
@@ -18,7 +17,7 @@ static WAKER: AtomicWaker = AtomicWaker::new();
 /// called by the keyboard interrupt handler. must no t block or allocate.
 pub(crate) fn add_scancode(scancode: u8) {
     if let Ok(queue) = SCANCODE_QUEUE.try_get() {
-        if let Err(_) = queue.push(scancode) {
+        if queue.push(scancode).is_err() {
             println!("WARNING: scancode queue full, dropping keyboard input");
         } else {
             WAKER.wake();
@@ -37,12 +36,12 @@ pub async fn print_keypresses() {
     );
 
     while let Some(scancode) = scancodes.next().await {
-        if let Ok(Some(key_event)) = keyboard.add_byte(scancode) {
-            if let Some(key) = keyboard.process_keyevent(key_event) {
-                match key {
-                    DecodedKey::Unicode(character) => print!("{}", character),
-                    DecodedKey::RawKey(key) => print!("{:?}", key),
-                }
+        if let Ok(Some(key_event)) = keyboard.add_byte(scancode)
+            && let Some(key) = keyboard.process_keyevent(key_event)
+        {
+            match key {
+                DecodedKey::Unicode(character) => print!("{}", character),
+                DecodedKey::RawKey(key) => print!("{:?}", key),
             }
         }
     }
@@ -53,6 +52,8 @@ pub struct ScancodeStream {
 }
 
 impl ScancodeStream {
+    // no Default impl on purpose: this panics when called a second time
+    #[allow(clippy::new_without_default)]
     pub fn new() -> Self {
         SCANCODE_QUEUE
             .try_init_once(|| ArrayQueue::new(100))
@@ -74,7 +75,7 @@ impl Stream for ScancodeStream {
             return Poll::Ready(Some(scancode));
         }
 
-        WAKER.register(&cx.waker());
+        WAKER.register(cx.waker());
 
         match queue.pop() {
             Some(scancode) => {

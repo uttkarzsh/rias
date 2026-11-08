@@ -18,6 +18,12 @@ pub struct FixedSizeBlockAllocator {
     fallback_allocator: linked_list_allocator::Heap,
 }
 
+impl Default for FixedSizeBlockAllocator {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl FixedSizeBlockAllocator {
     pub const fn new() -> Self {
         const EMPTY: Option<&'static mut ListNode> = None;
@@ -27,6 +33,10 @@ impl FixedSizeBlockAllocator {
         }
     }
 
+    /// hands the whole heap to the fallback allocator.
+    ///
+    /// # Safety
+    /// must be called only once. caller must ensure that the given memory range is unused
     pub unsafe fn init(&mut self, heap_start: usize, heap_size: usize) {
         unsafe {
             self.fallback_allocator.init(heap_start, heap_size);

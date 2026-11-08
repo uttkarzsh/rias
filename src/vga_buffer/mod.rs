@@ -3,7 +3,6 @@ use volatile::Volatile;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 #[repr(u8)]
-
 pub enum Color {
     Black = 0,
     Blue = 1,
@@ -104,8 +103,8 @@ impl Writer {
             color_code: self.color_code,
         };
 
-        for col in 0..BUFFER_WIDTH {
-            self.buffer.chars[row][col].write(blank);
+        for cell in self.buffer.chars[row].iter_mut() {
+            cell.write(blank);
         }
     }
 

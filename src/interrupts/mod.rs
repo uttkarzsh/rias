@@ -1,4 +1,4 @@
-use crate::{hlt_loop, print, println};
+use crate::{hlt_loop, println};
 use lazy_static::lazy_static;
 use pic8259::ChainedPics;
 use spin;
@@ -57,8 +57,6 @@ extern "x86-interrupt" fn double_fault_handler(
 }
 
 extern "x86-interrupt" fn timer_interrupt_handler(_stack_frame: InterruptStackFrame) {
-    print!(".");
-
     unsafe {
         PICS.lock()
             .notify_end_of_interrupt(InterruptIndex::Timer.as_u8());

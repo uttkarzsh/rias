@@ -3,11 +3,9 @@ pub mod fixed_size_block;
 pub mod linked_list;
 
 use alloc::alloc::{GlobalAlloc, Layout};
-use bump::{BumpAllocator, Locked};
+use bump::Locked;
 use core::ptr::null_mut;
 use fixed_size_block::FixedSizeBlockAllocator;
-use linked_list::LinkedListAllocator;
-use linked_list_allocator::LockedHeap;
 use x86_64::{
     VirtAddr,
     structures::paging::{
