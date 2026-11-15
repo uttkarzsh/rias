@@ -9,7 +9,7 @@ Rias is my journey into operating systems, computer architecture, and low-level 
 - [x] Physical & virtual memory management
 - [x] Heap allocator
 - [x] Keyboard input
-- [ ] Cooperative multitasking
+- [x] Cooperative multitasking
 - [x] Basic shell
 - [ ] Filesystem support
 - [ ] User-space programs (stretch goal)
