@@ -9,7 +9,7 @@ extern crate alloc;
 use bootloader::{BootInfo, entry_point};
 use core::panic::PanicInfo;
 #[cfg(not(test))]
-use rias::task::{Task, executor::Executor, keyboard};
+use rias::task::{Task, executor::Executor};
 use rias::{memory, println};
 
 entry_point!(kernel_main);
@@ -48,7 +48,7 @@ fn kernel_main(boot_info: &'static BootInfo) -> ! {
     #[cfg(not(test))]
     {
         let mut executor = Executor::new();
-        executor.spawn(Task::new(keyboard::print_keypresses()));
+        executor.spawn(Task::new(rias::shell::run()));
         executor.run();
     }
 }

@@ -86,3 +86,33 @@ impl Stream for ScancodeStream {
         }
     }
 }
+
+pub struct KeyReader {
+    scancodes: ScancodeStream,
+    keyboard: Keyboard<layouts::Us104Key, ScancodeSet1>,
+}
+
+impl KeyReader {
+    #[allow(clippy::new_without_default)]
+    pub fn new() -> Self {
+        KeyReader {
+            scancodes: ScancodeStream::new(),
+            keyboard: Keyboard::new(
+                ScancodeSet1::new(),
+                layouts::Us104Key,
+                HandleControl::Ignore,
+            ),
+        }
+    }
+
+    pub async fn next_key(&mut self) -> DecodedKey {
+        loop {
+            let scancode = self.scancodes.next().await.expect("scancode stream ended");
+            if let Ok(Some(event)) = self.keyboard.add_byte(scancode)
+                && let Some(key) = self.keyboard.process_keyevent(event)
+            {
+                return key;
+            }
+        }
+    }
+}
