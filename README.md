@@ -10,7 +10,7 @@ Rias is my journey into operating systems, computer architecture, and low-level 
 - [x] Heap allocator
 - [x] Keyboard input
 - [ ] Cooperative multitasking
-- [ ] Basic shell
+- [x] Basic shell
 - [ ] Filesystem support
 - [ ] User-space programs (stretch goal)
 

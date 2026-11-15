@@ -4,7 +4,9 @@ pub fn execute(line: &str) {
     let mut parts = line.split_whitespace();
     match parts.next() {
         None => {}
-        Some("help") => println!("commands: help echo clear exit/shutdown"),
+        Some("help") => {
+            println!("commands:\n help\n echo\n clear\n uptime\n reboot\n exit/shutdown\n")
+        }
         Some("echo") => {
             for w in parts {
                 print!("{w} ");
@@ -18,8 +20,16 @@ pub fn execute(line: &str) {
                 writer.update_cursor();
             });
         }
+        Some("uptime") => {
+            let ticks = crate::interrupts::ticks();
+            let secs = ticks * 65536 / 1_193_182;
+            println!("{}m {}s", secs / 60, secs % 60);
+        }
         Some("exit" | "shutdown") => {
             crate::shutdown();
+        }
+        Some("reboot") => {
+            crate::reboot();
         }
         Some(cmd) => {
             println!("command not found: {cmd}");

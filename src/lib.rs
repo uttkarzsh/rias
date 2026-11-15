@@ -36,12 +36,24 @@ pub fn exit_qemu(exit_code: QemuExitCode) {
 pub fn shutdown() -> ! {
     use x86_64::instructions::port::Port;
 
+    println!("shutting down...");
     unsafe {
-        println!("shutting down...");
         Port::<u16>::new(0x604).write(0x2000);
     }
 
-    println!("shutdown failed, halting");
+    println!("shutdown failed, halting...");
+    hlt_loop();
+}
+
+pub fn reboot() -> ! {
+    use x86_64::instructions::port::Port;
+
+    println!("rebooting...");
+    unsafe {
+        Port::<u8>::new(0x64).write(0xFEu8);
+    }
+
+    println!("reboot failed. halting...");
     hlt_loop();
 }
 
