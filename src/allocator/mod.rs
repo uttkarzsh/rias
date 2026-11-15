@@ -46,6 +46,10 @@ pub fn init_heap(
     Ok(())
 }
 
+pub fn heap_stats() -> (usize, usize) {
+    ALLOCATOR.lock().stats()
+}
+
 pub struct Dummy;
 
 unsafe impl GlobalAlloc for Dummy {
