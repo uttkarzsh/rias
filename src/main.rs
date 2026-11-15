@@ -27,6 +27,11 @@ fn kernel_main(boot_info: &'static BootInfo) -> ! {
  | |  | | (_| \__ \ |_| |___) |
  |_|  |_|\__,_|___/\___/|____/
 
+
+ Welcome! You are logged in. This is the Crimson-Kerneled OS.
+ Enter "help" to start.
+
+
 "#
     );
 

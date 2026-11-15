@@ -188,6 +188,22 @@ pub fn _print(args: fmt::Arguments) {
     });
 }
 
+/// Runs `f` with the foreground colour set to `fg`, then restores the previous
+/// colour. The lock is released while `f` runs, so `f` can freely use `print!`.
+pub fn with_color<R>(fg: Color, f: impl FnOnce() -> R) -> R {
+    use x86_64::instructions::interrupts;
+
+    let old = interrupts::without_interrupts(|| {
+        let mut writer = WRITER.lock();
+        let old = writer.color_code;
+        writer.color_code = ColorCode::new(fg, Color::Black);
+        old
+    });
+    let result = f();
+    interrupts::without_interrupts(|| WRITER.lock().color_code = old);
+    result
+}
+
 #[test_case]
 fn test_println_simple() {
     println!("test simple print");

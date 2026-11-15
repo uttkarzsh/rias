@@ -1,11 +1,21 @@
 use crate::{print, println};
 
+const COMMANDS: &[(&str, &str)] = &[
+    ("help", "print this list."),
+    ("echo", "print arguments."),
+    ("clear", "clear the screen"),
+    ("uptime", "show uptime"),
+    ("reboot", "reboot"),
+    ("exit | shutdown", "shutdown and exit rias"),
+];
 pub fn execute(line: &str) {
     let mut parts = line.split_whitespace();
     match parts.next() {
         None => {}
         Some("help") => {
-            println!("commands:\n help\n echo\n clear\n uptime\n reboot\n exit/shutdown\n")
+            for command in COMMANDS {
+                println!("{}: {}", command.0, command.1);
+            }
         }
         Some("echo") => {
             for w in parts {
