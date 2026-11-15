@@ -66,6 +66,7 @@ impl Writer {
     pub fn write_byte(&mut self, byte: u8) {
         match byte {
             b'\n' => self.new_line(),
+            0x08 => self.backspace(),
             byte => {
                 if self.column_position >= BUFFER_WIDTH {
                     self.new_line();
@@ -97,6 +98,18 @@ impl Writer {
         self.column_position = 0;
     }
 
+    pub fn backspace(&mut self) {
+        if self.column_position == 0 {
+            return;
+        }
+        self.column_position -= 1;
+        let blank = ScreenChar {
+            ascii_character: b' ',
+            color_code: self.color_code,
+        };
+        self.buffer.chars[BUFFER_HEIGHT - 1][self.column_position].write(blank);
+    }
+
     pub fn clear_row(&mut self, row: usize) {
         let blank = ScreenChar {
             ascii_character: b' ',
@@ -108,10 +121,33 @@ impl Writer {
         }
     }
 
+    pub fn clear_screen(&mut self) {
+        for row in 0..BUFFER_HEIGHT {
+            self.clear_row(row);
+        }
+        self.column_position = 0;
+    }
+
+    /// moves the blinking cursor to where the next character will go
+    pub fn update_cursor(&self) {
+        use x86_64::instructions::port::Port;
+
+        let col = self.column_position.min(BUFFER_WIDTH - 1);
+        let pos = ((BUFFER_HEIGHT - 1) * BUFFER_WIDTH + col) as u16;
+        let mut index = Port::<u8>::new(0x3D4);
+        let mut data = Port::<u8>::new(0x3D5);
+        unsafe {
+            index.write(0x0F);
+            data.write(pos as u8);
+            index.write(0x0E);
+            data.write((pos >> 8) as u8);
+        }
+    }
+
     pub fn write_string(&mut self, s: &str) {
         for byte in s.bytes() {
             match byte {
-                0x20..=0x7e | b'\n' => self.write_byte(byte),
+                0x08 | 0x20..=0x7e | b'\n' => self.write_byte(byte),
                 _ => self.write_byte(0xfe),
             }
         }
@@ -146,7 +182,9 @@ pub fn _print(args: fmt::Arguments) {
     use x86_64::instructions::interrupts;
 
     interrupts::without_interrupts(|| {
-        WRITER.lock().write_fmt(args).unwrap();
+        let mut writer = WRITER.lock();
+        writer.write_fmt(args).unwrap();
+        writer.update_cursor();
     });
 }
 
